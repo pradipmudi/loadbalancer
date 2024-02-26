@@ -11,7 +11,7 @@ public class LeastConnectionsLoadBalancer extends LoadBalancer {
     private List<Server> servers;
     private ConcurrentMap<Server, Integer> connectionsMap;
 
-    public LeastConnectionsLoadBalancer(){}
+    private LeastConnectionsLoadBalancer(){}
     public LeastConnectionsLoadBalancer(List<Server> servers) {
         this.servers = servers;
         this.connectionsMap = new ConcurrentHashMap<>();

@@ -14,7 +14,7 @@ public class WeightedRoundRobinLoadBalancer extends LoadBalancer {
         this.servers = servers;
     }
 
-    public WeightedRoundRobinLoadBalancer(){}
+    private WeightedRoundRobinLoadBalancer(){}
 
     @Override
     public Server getNextEligibleServer() {

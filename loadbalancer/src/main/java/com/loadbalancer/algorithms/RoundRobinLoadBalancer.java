@@ -9,7 +9,7 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
 
     private List<Server> servers;
     private AtomicInteger currentIndex;
-    public RoundRobinLoadBalancer() {
+    private RoundRobinLoadBalancer() {
     }
 
     public RoundRobinLoadBalancer(List<Server> servers) {
