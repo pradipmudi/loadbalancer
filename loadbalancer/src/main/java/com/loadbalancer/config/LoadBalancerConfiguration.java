@@ -10,7 +10,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "lb")
 public class LoadBalancerConfiguration {
     private List<AlgorithmConfig> algorithms;
-    private List<Server> servers;
+    private List<ServerConfig> servers;
 
     public List<AlgorithmConfig> getAlgorithms() {
         return algorithms;
@@ -20,11 +20,11 @@ public class LoadBalancerConfiguration {
         this.algorithms = algorithms;
     }
 
-    public List<Server> getServers() {
+    public List<ServerConfig> getServers() {
         return servers;
     }
 
-    public void setServers(List<Server> servers) {
+    public void setServers(List<ServerConfig> servers) {
         this.servers = servers;
     }
 

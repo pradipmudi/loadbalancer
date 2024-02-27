@@ -5,34 +5,40 @@ import com.loadbalancer.algorithms.LoadBalancer;
 import com.loadbalancer.algorithms.RoundRobinLoadBalancer;
 import com.loadbalancer.algorithms.WeightedRoundRobinLoadBalancer;
 import com.loadbalancer.config.LoadBalancerConfiguration;
-import com.loadbalancer.config.Server;
+import com.loadbalancer.config.ServerConfig;
 import com.loadbalancer.constant.LoadBalancingAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Service
 public class LoadBalancerService {
 
-    private LoadBalancerConfiguration loadBalancerConfiguration;
+    private final LoadBalancerConfiguration loadBalancerConfiguration;
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public LoadBalancerService(LoadBalancerConfiguration loadBalancerConfiguration) {
+    public LoadBalancerService(LoadBalancerConfiguration loadBalancerConfiguration, RestTemplate restTemplate) {
         this.loadBalancerConfiguration = loadBalancerConfiguration;
+        this.restTemplate = restTemplate;
     }
 
     public LoadBalancingAlgorithm getLoadBalancingAlgorithm() {
         return loadBalancerConfiguration.getSelectedAlgorithm();
     }
 
-    private List<Server> getServers() {
+    private List<ServerConfig> getServers() {
         return loadBalancerConfiguration.getServers();
     }
 
-    public LoadBalancer createLoadBalancingAlgorithmObject() {
+    public LoadBalancer loadTheLoadBalancingAlgorithmByConfig() {
         LoadBalancingAlgorithm selectedAlgorithm = getLoadBalancingAlgorithm();
-        List<Server> serverList = getServers();
+        List<ServerConfig> serverList = getServers();
         switch (selectedAlgorithm) {
             case ROUND_ROBIN:
                 return new RoundRobinLoadBalancer(serverList);
@@ -43,6 +49,29 @@ public class LoadBalancerService {
             default:
                 throw new IllegalArgumentException("Unknown load balancing algorithm: " + selectedAlgorithm);
         }
+    }
+
+    // Method to reroute incoming requests to servers using the selected load balancing algorithm
+    public ResponseEntity<String> rerouteRequest(HttpMethod method, String requestUrl, HttpEntity<String> requestEntity) {
+        LoadBalancer loadBalancer = loadTheLoadBalancingAlgorithmByConfig();
+        ServerConfig server = loadBalancer.getNextEligibleServer();
+
+        if(loadBalancer instanceof LeastConnectionsLoadBalancer){
+            ((LeastConnectionsLoadBalancer) loadBalancer).incrementConnections(server);
+        }
+
+        // Construct the URL for the selected server
+        String serverUrl = server.getUrl() + requestUrl;
+
+
+        // Forward the request to the selected server
+        ResponseEntity<String> responseEntity =  restTemplate.exchange(serverUrl, method, requestEntity, String.class);
+
+        if(loadBalancer instanceof LeastConnectionsLoadBalancer){
+            ((LeastConnectionsLoadBalancer) loadBalancer).decrementConnections(server);
+        }
+
+        return responseEntity;
     }
 
 }

@@ -1,12 +1,12 @@
 package com.loadbalancer.config;
 
-public class Server {
+public class ServerConfig {
     private String name;
     private String url;
     private int weight;
     private int connections; // Track number of connections to this server
 
-    public Server(String name, String url, int weight) {
+    public ServerConfig(String name, String url, int weight) {
         this.name = name;
         this.url = url;
         this.weight = weight;

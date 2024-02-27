@@ -1,12 +1,10 @@
 package com.loadbalancer.algorithms;
 
-import com.loadbalancer.config.Server;
+import com.loadbalancer.config.ServerConfig;
 
-import java.util.List;
+public abstract class LoadBalancer {
 
-public class LoadBalancer {
-
-    public synchronized Server getNextEligibleServer() {
+    public ServerConfig getNextEligibleServer() {
         return null;
     }
 }
