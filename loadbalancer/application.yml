@@ -1,3 +1,17 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: expensys
+  cloud:
+    config:
+      enabled: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+
 lb:
   algorithms:
     - algorithm: ROUND_ROBIN

@@ -2,7 +2,9 @@ package com.loadbalancer.config;
 
 import com.loadbalancer.constant.LoadBalancingAlgorithm;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -35,6 +37,11 @@ public class LoadBalancerConfiguration {
             }
         }
         return null; // Or throw an exception if none is selected
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
 
