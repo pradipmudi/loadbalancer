@@ -4,7 +4,5 @@ import com.loadbalancer.config.ServerConfig;
 
 public abstract class LoadBalancer {
 
-    public ServerConfig getNextEligibleServer() {
-        return null;
-    }
+    public abstract ServerConfig getNextEligibleServer();
 }
