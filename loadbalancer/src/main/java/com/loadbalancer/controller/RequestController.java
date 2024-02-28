@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
@@ -25,31 +27,20 @@ public class RequestController {
     public ResponseEntity<String> routeRequest(HttpServletRequest request,
                                                @RequestBody(required = false) String requestBody) {
         String method = request.getMethod();
-        String requestUrl = extractRequestUrl(request);
 
-        // Extract path variables from the request URL
-        Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+        // Extract path and query parameters separately
+        String requestUri = request.getRequestURI();
+        String queryString = request.getQueryString();
 
-        // Extract query parameters from the request URL
-        Map<String, String[]> queryParams = request.getParameterMap();
+        // Construct the URL with only path parameters
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(requestUri);
 
-        // Prepare the full URL with path variables and query parameters
-        StringBuilder fullUrlBuilder = new StringBuilder(requestUrl);
-        if (!pathVariables.isEmpty()) {
-            for (Map.Entry<String, String> entry : pathVariables.entrySet()) {
-                fullUrlBuilder.replace(fullUrlBuilder.indexOf("{" + entry.getKey() + "}"), fullUrlBuilder.indexOf("{" + entry.getKey() + "}") + entry.getKey().length() + 2, entry.getValue());
-            }
+        // Append query parameters if they exist
+        if (queryString != null) {
+            uriBuilder.query(queryString);
         }
-        if (!queryParams.isEmpty()) {
-            fullUrlBuilder.append("?");
-            for (Map.Entry<String, String[]> entry : queryParams.entrySet()) {
-                for (String value : entry.getValue()) {
-                    fullUrlBuilder.append(entry.getKey()).append("=").append(value).append("&");
-                }
-            }
-            fullUrlBuilder.deleteCharAt(fullUrlBuilder.length() - 1);
-        }
-        String fullUrl = fullUrlBuilder.toString();
+
+        String fullUrl = uriBuilder.toUriString();
 
         // Construct HttpEntity if requestBody is not null
         HttpEntity<String> requestEntity = requestBody != null ? new HttpEntity<>(requestBody) : null;
@@ -58,10 +49,5 @@ public class RequestController {
         return loadBalancerService.rerouteRequest(HttpMethod.valueOf(method), fullUrl, requestEntity);
     }
 
-    private String extractRequestUrl(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        String contextPath = request.getContextPath();
-        String servletPath = request.getServletPath();
-        return requestURI.substring(contextPath.length() + servletPath.length());
-    }
+
 }

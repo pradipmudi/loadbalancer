@@ -22,14 +22,14 @@ lb:
       enabled: false
   servers:
     - name: Server1
-      url: http://localhost:7070
+      url: http://localhost:8080
       weight: 1
     - name: Server2
-      url: http://localhost:7071
+      url: http://localhost:8081
       weight: 2
     - name: Server3
-      url: http://localhost:7072
+      url: http://localhost:8082
       weight: 2
     - name: Server4
-      url: http://localhost:7073
+      url: http://localhost:8083
       weight: 4
