@@ -15,11 +15,11 @@ logging:
 lb:
   algorithms:
     - algorithm: ROUND_ROBIN
-      enabled: true
+      enabled: false
     - algorithm: WEIGHTED_ROUND_ROBIN
       enabled: false
     - algorithm: LEAST_CONNECTIONS
-      enabled: false
+      enabled: true
   servers:
     - name: Server1
       url: http://localhost:8080
